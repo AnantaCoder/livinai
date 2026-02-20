@@ -35,7 +35,7 @@ const Hero = () => {
             transition={{ delay: 0.5, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             className="text-primary tracking-[0.3em] uppercase text-sm mb-6"
           >
-            Curated Living Since 2024
+            Curated Living Since 2026
           </motion.p>
         </div>
         <div className="overflow-hidden">

@@ -29,7 +29,7 @@ const Footer = () => {
       >
         <div className="grid md:grid-cols-3 gap-16">
           <div>
-            <h3 className="font-display text-2xl text-foreground mb-4">LIVINAI</h3>
+            <h3 className="font-display text-2xl text-foreground mb-4">LIVION</h3>
             <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">
               AI-powered furniture discovery. Visualize, detect, and shop — all
               from one intelligent platform.
@@ -74,7 +74,7 @@ const Footer = () => {
         </div>
         <div className="border-t border-border mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-muted-foreground text-xs tracking-wider">
-            © 2024 Livinai. All rights reserved.
+            © 2026 Livion. All rights reserved.
           </p>
           <p className="text-muted-foreground text-xs tracking-wider">
             Crafted with AI & precision
@@ -82,13 +82,13 @@ const Footer = () => {
         </div>
       </motion.div>
 
-      {/* Giant LIVINAI logo at the bottom — half clipped */}
+      {/* Giant LIVION logo at the bottom — half clipped */}
       <div className="relative w-full overflow-hidden flex-1 flex items-end justify-center pointer-events-none">
         <motion.h2
           style={{ scale: logoScale, opacity: logoOpacity }}
-          className="font-display text-[28vw] md:text-[22vw] leading-none text-foreground/[0.04] select-none whitespace-nowrap translate-y-[45%]"
+          className="font-display text-[32vw] md:text-[22vw] leading-none text-foreground/[0.04] select-none whitespace-nowrap translate-y-[45%]"
         >
-          LIVINAI
+          LIVION
         </motion.h2>
         {/* Gold glow behind logo */}
         <motion.div

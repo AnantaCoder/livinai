@@ -1,17 +1,25 @@
 "use client";
 
-import { motion, useInView, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
-import aiRoomImg from "@/assets/ai-room-viz.jpg";
+import { motion, useInView, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { useRef, useState, useEffect } from "react";
 import aiDetectionImg from "@/assets/ai-detection.jpg";
+import { Volume2, VolumeX } from "lucide-react";
 
-const features = [
+type FeatureType = {
+  tag: string;
+  title: string;
+  description: string;
+  image?: string;
+  video?: string;
+};
+
+const features: FeatureType[] = [
   {
     tag: "AI Room Visualization",
     title: "See it in your space before you buy",
     description:
       "Our AI engine renders any piece of furniture directly into a photo of your room — adjusting for lighting, perspective, and scale in real time.",
-    image: aiRoomImg.src,
+    video: "/AI_Materializes_Modern_Furniture.mp4",
   },
   {
     tag: "Image Recognition",
@@ -26,12 +34,33 @@ const FeatureBlock = ({
   feature,
   index,
 }: {
-  feature: (typeof features)[0];
+  feature: FeatureType;
   index: number;
 }) => {
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const inView = useInView(ref, { once: true, margin: "-120px" });
   const isReversed = index % 2 !== 0;
+  const [isMuted, setIsMuted] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Set playback speed when video loads
+  useEffect(() => {
+    if (isMounted && videoRef.current) {
+      videoRef.current.playbackRate = 0.9;
+    }
+  }, [isMounted, videoRef.current]);
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !videoRef.current.muted;
+      setIsMuted(videoRef.current.muted);
+    }
+  };
 
   return (
     <motion.div
@@ -64,7 +93,7 @@ const FeatureBlock = ({
         />
       </motion.div>
 
-      {/* Image with 3D-style depth effect */}
+      {/* Image/Video with 3D-style depth effect */}
       <motion.div
         initial={{ opacity: 0, y: 80, rotateX: 8 }}
         animate={inView ? { opacity: 1, y: 0, rotateX: 0 } : {}}
@@ -73,23 +102,53 @@ const FeatureBlock = ({
         style={{ perspective: 1000 }}
       >
         <div className="relative overflow-hidden rounded-sm">
-          <img
-            src={feature.image}
-            alt={feature.tag}
-            className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
-          />
+          {feature.video ? (
+            <div className="relative" suppressHydrationWarning>
+              {isMounted ? (
+                <>
+                  <video
+                    ref={videoRef}
+                    src={feature.video}
+                    autoPlay
+                    loop
+                    muted={isMuted}
+                    playsInline
+                    className="w-full h-[500px] object-cover rounded-sm"
+                  />
+
+                  {/* Audio toggle button */}
+                  <button
+                    onClick={toggleMute}
+                    className="absolute bottom-4 right-4 z-50 p-2 md:p-3 bg-secondary/80 backdrop-blur-md rounded-full text-foreground hover:bg-primary transition-colors border border-border"
+                    aria-label={isMuted ? "Enable Audio" : "Disable Audio"}
+                  >
+                    {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                  </button>
+                </>
+              ) : (
+                <div className="w-full h-[500px] bg-secondary/20 rounded-sm"></div>
+              )}
+            </div>
+          ) : (
+            <img
+              src={feature.image}
+              alt={feature.tag}
+              className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+          )}
+
           {/* Scan line effect */}
           <motion.div
             initial={{ top: "-100%" }}
             animate={inView ? { top: "120%" } : {}}
             transition={{ delay: 0.8, duration: 2, ease: "linear" }}
-            className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent"
+            className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent pointer-events-none"
           />
           {/* Glow overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent pointer-events-none" />
         </div>
         {/* Floating depth shadows */}
-        <div className="absolute -inset-4 -z-10 bg-primary/5 rounded-sm blur-2xl group-hover:bg-primary/10 transition-colors duration-700" />
+        <div className="absolute -inset-4 -z-10 bg-primary/5 rounded-sm blur-2xl group-hover:bg-primary/10 transition-colors duration-700 pointer-events-none" />
       </motion.div>
     </motion.div>
   );
@@ -110,7 +169,7 @@ const AIShowcase = () => {
   return (
     <section
       ref={sectionRef}
-      id="atelier"
+      id="ai-studio"
       className="relative py-32 md:py-48 overflow-hidden"
     >
       {/* Parallax background grain */}

@@ -24,25 +24,39 @@ const Navbar = () => {
     >
       <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between h-20">
         <Link href="/" className="font-display text-2xl tracking-wider text-foreground">
-          LIVINAI
+          LIVION
         </Link>
         <div className="hidden md:flex items-center gap-10">
-          {["Collections", "AI Studio", "Catalog", "Journal"].map((item) => (
+          {["Collections", "AI Studio", "Catalog"].map((item) => (
             <Link
               key={item}
-              href={`#${item.toLowerCase()}`}
+              href={`/#${item.toLowerCase().replace(" ", "-")}`}
               className="text-sm tracking-[0.2em] uppercase text-muted-foreground hover:text-primary transition-colors duration-300"
             >
               {item}
             </Link>
           ))}
+          <Link
+            href="/shop"
+            className="text-sm tracking-[0.2em] uppercase text-muted-foreground hover:text-primary transition-colors duration-300"
+          >
+            Shop
+          </Link>
         </div>
-        <Link
-          href="#contact"
-          className="text-sm tracking-[0.2em] uppercase text-primary hover:text-foreground transition-colors duration-300"
-        >
-          Contact
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link
+            href="/login"
+            className="hidden sm:inline-flex text-xs tracking-[0.2em] uppercase bg-secondary text-secondary-foreground hover:bg-secondary/80 px-6 py-3 transition-colors duration-300 font-medium"
+          >
+            Login
+          </Link>
+          <Link
+            href="/contact"
+            className="hidden sm:inline-flex text-xs tracking-[0.2em] uppercase bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-3 transition-colors duration-300 font-medium"
+          >
+            Contact
+          </Link>
+        </div>
       </div>
     </motion.nav>
   );

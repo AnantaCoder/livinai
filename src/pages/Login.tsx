@@ -48,7 +48,17 @@ const Login = () => {
       </motion.div>
 
       {/* Right: form */}
-      <div className="flex-1 flex items-center justify-center px-6 md:px-12">
+      <div className="flex-1 flex items-center justify-center px-6 md:px-12 relative">
+        <Link
+          href="/"
+          aria-label="Home"
+          className="absolute top-6 right-6 md:top-12 md:right-12 flex items-center justify-center w-10 h-10 border border-border text-foreground hover:bg-secondary transition-colors duration-300 rounded-sm z-50"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        </Link>
         <motion.div
           initial={{ y: 40, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -59,7 +69,7 @@ const Login = () => {
             href="/"
             className="font-display text-2xl tracking-wider text-foreground hover:text-primary transition-colors duration-300 inline-block mb-12"
           >
-            LIVINAI
+            LIVION
           </Link>
 
           <AnimatePresence mode="wait">
@@ -157,6 +167,12 @@ const Login = () => {
                   {isSignup ? "Sign in" : "Create one"}
                 </button>
               </p>
+
+              <div className="mt-6">
+                <Button asChild variant="outline" className="w-full h-12 text-xs tracking-[0.2em] uppercase border-border hover:bg-secondary/50">
+                  <Link href="/contact">Need help? Contact Us</Link>
+                </Button>
+              </div>
             </motion.div>
           </AnimatePresence>
         </motion.div>

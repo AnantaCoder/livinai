@@ -14,8 +14,8 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-    title: 'Airy Aim',
-    description: 'Airy Aim application',
+    title: 'Livion',
+    description: 'Livion application',
 };
 
 export default function RootLayout({
@@ -25,7 +25,7 @@ export default function RootLayout({
 }) {
     return (
         <html lang="en" suppressHydrationWarning>
-            <body className={`${dmSans.variable} ${playfair.variable} font-body antialiased`}>
+            <body className={`${dmSans.variable} ${playfair.variable} font-body antialiased`} suppressHydrationWarning>
                 <Providers>{children}</Providers>
             </body>
         </html>
