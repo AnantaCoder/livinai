@@ -11,10 +11,12 @@ const Login = () => {
   const [isSignup, setIsSignup] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("buyer");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // UI only — no backend
+    console.log("Role:", role);
   };
 
   return (
@@ -97,6 +99,22 @@ const Login = () => {
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.3 }}
                   >
+                    <div className="flex bg-secondary p-1 rounded-lg mb-6">
+                      {["buyer", "seller", "admin"].map((r) => (
+                        <button
+                          key={r}
+                          type="button"
+                          onClick={() => setRole(r)}
+                          className={`flex-1 py-2 text-xs font-medium tracking-wider uppercase rounded-md transition-all ${role === r
+                              ? "bg-background shadow-sm text-foreground"
+                              : "text-muted-foreground hover:text-foreground"
+                            }`}
+                        >
+                          {r}
+                        </button>
+                      ))}
+                    </div>
+
                     <Label
                       htmlFor="name"
                       className="text-xs tracking-[0.2em] uppercase text-muted-foreground"
