@@ -465,9 +465,9 @@ async function seedDatabase() {
     // Create Categories
     console.log("\nCreating categories...");
     const categoryMap = new Map();
-    const categoriesToCreate = [
-      ...new Set(allProducts.map((p) => p.categorySlug)),
-    ];
+    const categoriesToCreate = Array.from(
+      new Set(allProducts.map((p) => p.categorySlug)),
+    );
 
     for (const slug of categoriesToCreate) {
       const name = slug
