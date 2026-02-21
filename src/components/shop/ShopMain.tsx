@@ -1,9 +1,11 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { useRef } from "react";
-import { ArrowRight, MapPin, Store, ChevronRight, Sofa, Bed, UtensilsCrossed, Lamp, BookOpen, Armchair, ShoppingBag } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, ArrowRight, MapPin, Store, ChevronRight, Sofa, Bed, UtensilsCrossed, Lamp, BookOpen, Armchair, ShoppingBag, X } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { Button } from "@/components/ui/button";
 
 import shopHero from "@/assets/shop-hero.jpg";
 import victorianImg from "@/assets/style-victorian.jpg";
@@ -82,6 +84,12 @@ const freshFinds = [
     { title: "Swivel Chairs", options: "70+", price: "4,949" },
     { title: "Curated Coffee Tables", options: "130+", price: "15,920" },
     { title: "Kids Bedroom", options: "600+", price: "599" },
+];
+
+const popularBrands = [
+    "Herman Miller", "Nilkamal", "RFL", "Poltrona Frau",
+    "Minotti", "B&B Italia", "Cassina", "Moroso",
+    "Kartell", "Roche Bobois", "Fendi Casa", "Bentley Home"
 ];
 
 /* ─── Section wrapper ─── */
@@ -204,30 +212,31 @@ const ShopMain = () => {
                 <SectionTitle label="Curated Categories" title="Designs That Travel Through Time" />
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {curatedDesigns.map((item, i) => (
-                        <motion.div
-                            key={item.title}
-                            variants={fadeUp}
-                            transition={{ duration: 0.6, delay: i * 0.1 }}
-                            className="group relative overflow-hidden rounded-lg cursor-pointer"
-                        >
-                            <div className="aspect-[3/4] overflow-hidden">
-                                <img
-                                    src={item.image.src}
-                                    alt={item.title}
-                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent" />
-                            </div>
-                            <div className="absolute bottom-0 left-0 right-0 p-6">
-                                <h3 className="font-display text-xl text-foreground mb-1">{item.title}</h3>
-                                <p className="text-muted-foreground text-xs">
-                                    {item.options} Options, Starting at ₹{item.price}
-                                </p>
-                                <div className="flex items-center gap-1 mt-3 text-primary text-xs tracking-wider opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                    Explore <ArrowRight className="w-3 h-3" />
+                        <Link href={`/shop/${item.title.toLowerCase().replace(/\s+/g, '-')}`} key={item.title}>
+                            <motion.div
+                                variants={fadeUp}
+                                transition={{ duration: 0.6, delay: i * 0.1 }}
+                                className="group relative overflow-hidden rounded-lg cursor-pointer"
+                            >
+                                <div className="aspect-[3/4] overflow-hidden">
+                                    <img
+                                        src={item.image.src}
+                                        alt={item.title}
+                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent" />
                                 </div>
-                            </div>
-                        </motion.div>
+                                <div className="absolute bottom-0 left-0 right-0 p-6">
+                                    <h3 className="font-display text-xl text-foreground mb-1">{item.title}</h3>
+                                    <p className="text-muted-foreground text-xs">
+                                        {item.options} Options, Starting at ₹{item.price}
+                                    </p>
+                                    <div className="flex items-center gap-1 mt-3 text-primary text-xs tracking-wider opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        Explore <ArrowRight className="w-3 h-3" />
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </Link>
                     ))}
                 </div>
             </Section>
@@ -304,27 +313,28 @@ const ShopMain = () => {
                 <SectionTitle label="Lifestyle" title="Your Life, In Furniture" />
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {lifeMoments.map((item, i) => (
-                        <motion.div
-                            key={item.title}
-                            variants={fadeUp}
-                            transition={{ duration: 0.6, delay: i * 0.08 }}
-                            className="group relative overflow-hidden rounded-lg cursor-pointer"
-                        >
-                            <div className="aspect-[4/3] overflow-hidden">
-                                <img
-                                    src={item.image.src}
-                                    alt={item.title}
-                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
-                            </div>
-                            <div className="absolute bottom-0 left-0 right-0 p-5">
-                                <h3 className="font-display text-lg text-foreground mb-1">{item.title}</h3>
-                                <p className="text-muted-foreground text-xs">
-                                    {item.options} options · Starting at ₹{item.price}
-                                </p>
-                            </div>
-                        </motion.div>
+                        <Link href={`/shop/${item.title.toLowerCase().replace(/\s+/g, '-')}`} key={item.title}>
+                            <motion.div
+                                variants={fadeUp}
+                                transition={{ duration: 0.6, delay: i * 0.08 }}
+                                className="group relative overflow-hidden rounded-lg cursor-pointer"
+                            >
+                                <div className="aspect-[4/3] overflow-hidden">
+                                    <img
+                                        src={item.image.src}
+                                        alt={item.title}
+                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+                                </div>
+                                <div className="absolute bottom-0 left-0 right-0 p-5">
+                                    <h3 className="font-display text-lg text-foreground mb-1">{item.title}</h3>
+                                    <p className="text-muted-foreground text-xs">
+                                        {item.options} options · Starting at ₹{item.price}
+                                    </p>
+                                </div>
+                            </motion.div>
+                        </Link>
                     ))}
                 </div>
             </Section>
@@ -353,6 +363,38 @@ const ShopMain = () => {
                     ))}
                 </div>
             </Section>
+
+            {/* ═══ Popular Brands ═══ */}
+            <div className="py-24 border-t border-border overflow-hidden relative">
+                <div className="text-center mb-12">
+                    <p className="text-primary tracking-[0.3em] uppercase text-xs mb-3">Partners</p>
+                    <h2 className="font-display text-3xl md:text-4xl text-foreground">Most Popular Brands</h2>
+                </div>
+
+                <div className="relative flex w-full overflow-hidden mask-fade-sides">
+                    <motion.div
+                        className="flex items-center gap-16 md:gap-24 whitespace-nowrap min-w-full"
+                        animate={{ x: "-50%" }}
+                        transition={{
+                            repeat: Infinity,
+                            ease: "linear",
+                            duration: 30
+                        }}
+                    >
+                        {[...popularBrands, ...popularBrands, ...popularBrands].map((brand, i) => (
+                            <span
+                                key={i}
+                                className="font-display text-2xl md:text-4xl text-muted-foreground/40 hover:text-foreground transition-colors duration-500 cursor-default uppercase tracking-widest"
+                            >
+                                {brand}
+                            </span>
+                        ))}
+                    </motion.div>
+                </div>
+
+                <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background to-transparent pointer-events-none" />
+                <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-background to-transparent pointer-events-none" />
+            </div>
 
             <Footer />
         </div>
