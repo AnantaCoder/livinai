@@ -1,5 +1,5 @@
-import Shop from '../../pages/Shop';
+import ShopMain from "@/components/shop/ShopMain";
 
 export default function ShopPage() {
-    return <Shop />;
+    return <ShopMain />;
 }

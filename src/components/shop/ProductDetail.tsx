@@ -1,16 +1,81 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowLeft, Star, Truck, ShieldCheck, RefreshCcw } from "lucide-react";
+import { ArrowLeft, Star, Truck, ShieldCheck, RefreshCcw, Minus, Plus } from "lucide-react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { findProductById, categoryData } from "@/data/shopData";
+import { useProducts } from "@/hooks/useProducts";
+import { useCreateOrder } from "@/hooks/useOrders";
+import { useState } from "react";
+import OrderSuccessModal from "./OrderSuccessModal";
+import { useSession } from "next-auth/react";
 
 const ProductDetail = ({ id }: { id: string }) => {
+    const { data: session } = useSession();
     const data = findProductById(id);
+    const { data: dbProducts } = useProducts();
+    const createOrder = useCreateOrder();
+    const [isBuying, setIsBuying] = useState(false);
+    const [quantity, setQuantity] = useState(1);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [successOrder, setSuccessOrder] = useState<{
+        orderNumber: string;
+        items: { name: string; quantity: number; price: number }[];
+        totalAmount: number;
+    } | null>(null);
+
+    const handleBuy = async () => {
+        if (!data || !dbProducts) return;
+
+        if (!session) {
+            alert("🔒 Please login first to place an order.");
+            return;
+        }
+
+        if (session.user.role !== 'buyer') {
+            alert("Only buyers can purchase items. Please login with a buyer account.");
+            return;
+        }
+
+        setIsBuying(true);
+
+        // Find corresponding DB product by name
+        const dbProduct = dbProducts.find(p => p.name === data.product.name);
+
+        if (!dbProduct) {
+            alert("This product is currently out of stock or not available for system purchase.");
+            setIsBuying(false);
+            return;
+        }
+
+        try {
+            const order = await createOrder.mutateAsync({
+                items: [{ productId: dbProduct._id, quantity: quantity }]
+            });
+
+            const price = parseFloat(data.product.price.replace(/,/g, ''));
+
+            setSuccessOrder({
+                orderNumber: order.orderNumber,
+                items: [{ name: data.product.name, quantity: quantity, price: price }],
+                totalAmount: price * quantity,
+            });
+            setShowSuccessModal(true);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "Failed to place order";
+            if (message.includes("Unauthorized") || message.includes("login")) {
+                alert("🔒 Please login first to place an order.");
+            } else {
+                alert(`❌ Order failed: ${message}`);
+            }
+        } finally {
+            setIsBuying(false);
+        }
+    };
 
     if (!data) {
         return (
@@ -37,6 +102,15 @@ const ProductDetail = ({ id }: { id: string }) => {
     return (
         <div className="min-h-screen bg-background text-foreground">
             <Navbar />
+
+            {showSuccessModal && successOrder && (
+                <OrderSuccessModal
+                    isOpen={showSuccessModal}
+                    onClose={() => setShowSuccessModal(false)}
+                    orderDetails={successOrder}
+                />
+            )}
+
             <div className="pt-24 px-6 md:px-12 max-w-7xl mx-auto pb-12">
                 <Link href={`/shop/${categorySlug}`} className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8 text-sm tracking-wide uppercase">
                     <ArrowLeft className="w-4 h-4" /> Back to {categoryName}
@@ -81,9 +155,38 @@ const ProductDetail = ({ id }: { id: string }) => {
                             {product.desc}
                         </p>
 
+                        <div className="flex items-center gap-4 mb-8">
+                            <span className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Quantity</span>
+                            <div className="flex items-center border border-border rounded-md">
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-10 w-10 rounded-none border-r border-border"
+                                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                                    disabled={quantity <= 1 || isBuying}
+                                >
+                                    <Minus className="w-4 h-4" />
+                                </Button>
+                                <span className="w-12 text-center font-medium">{quantity}</span>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-10 w-10 rounded-none border-l border-border"
+                                    onClick={() => setQuantity(quantity + 1)}
+                                    disabled={isBuying}
+                                >
+                                    <Plus className="w-4 h-4" />
+                                </Button>
+                            </div>
+                        </div>
+
                         <div className="flex gap-4 mb-8">
-                            <Button className="flex-1 h-12 text-sm tracking-widest uppercase">
-                                Buy Now
+                            <Button
+                                onClick={handleBuy}
+                                disabled={isBuying || createOrder.isPending}
+                                className="flex-1 h-12 text-sm tracking-widest uppercase"
+                            >
+                                {isBuying ? "Processing..." : "Buy Now"}
                             </Button>
                             <Button variant="outline" className="flex-1 h-12 text-sm tracking-widest uppercase border-border hover:bg-secondary">
                                 Add to Wishlist

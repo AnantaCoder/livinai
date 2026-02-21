@@ -8,6 +8,7 @@ export interface IProduct extends mongoose.Document {
   images: string[];
   stock: number;
   sellerId: mongoose.Schema.Types.ObjectId;
+  categoryId?: mongoose.Schema.Types.ObjectId; // Optional link to Category model
   createdAt: Date;
   updatedAt: Date;
 }
@@ -30,8 +31,13 @@ const ProductSchema = new mongoose.Schema<IProduct>(
       min: [0, "Price cannot be negative"],
     },
     category: {
-      type: String,
+      type: String, // Keeping this for backward compatibility and simple filtering
       required: [true, "Please provide a category"],
+    },
+    categoryId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      required: false,
     },
     images: {
       type: [String],
@@ -49,7 +55,8 @@ const ProductSchema = new mongoose.Schema<IProduct>(
       required: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-export default mongoose.models.Product || mongoose.model<IProduct>("Product", ProductSchema);
+export default mongoose.models.Product ||
+  mongoose.model<IProduct>("Product", ProductSchema);

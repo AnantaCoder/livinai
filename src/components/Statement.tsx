@@ -1,9 +1,9 @@
 "use client";
 
+import { memo, useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
 
-const Statement = () => {
+const Statement = memo(() => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-100px" });
 
@@ -13,12 +13,12 @@ const Statement = () => {
         ref={ref}
         initial={{ opacity: 0 }}
         animate={inView ? { opacity: 1 } : {}}
-        transition={{ duration: 1.2 }}
+        transition={{ duration: 0.8 }}
       >
         <motion.div
           initial={{ scaleX: 0 }}
           animate={inView ? { scaleX: 1 } : {}}
-          transition={{ duration: 0.8, delay: 0.2 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
           className="w-16 h-px bg-primary mx-auto mb-10 origin-center"
         />
         <h2 className="font-display text-3xl md:text-5xl lg:text-6xl text-foreground leading-tight italic">
@@ -30,7 +30,7 @@ const Statement = () => {
         <motion.div
           initial={{ scaleX: 0 }}
           animate={inView ? { scaleX: 1 } : {}}
-          transition={{ duration: 0.8, delay: 0.6 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
           className="w-16 h-px bg-primary mx-auto mt-10 origin-center"
         />
         <p className="mt-8 text-muted-foreground tracking-[0.2em] uppercase text-sm">
@@ -39,6 +39,8 @@ const Statement = () => {
       </motion.div>
     </section>
   );
-};
+});
+
+Statement.displayName = "Statement";
 
 export default Statement;

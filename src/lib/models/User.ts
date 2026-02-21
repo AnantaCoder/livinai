@@ -24,6 +24,7 @@ const UserSchema = new mongoose.Schema<IUser>(
     },
     password: {
       type: String,
+      select: false, // Don't return password by default
       required: [false, "Please provide a password"], // Optional for OAuth
     },
     role: {
@@ -32,7 +33,8 @@ const UserSchema = new mongoose.Schema<IUser>(
       default: "buyer",
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-export default mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
+export default mongoose.models.User ||
+  mongoose.model<IUser>("User", UserSchema);

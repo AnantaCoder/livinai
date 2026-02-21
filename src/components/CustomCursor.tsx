@@ -1,107 +1,96 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 
 const CustomCursor = () => {
-    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-    const [hoverType, setHoverType] = useState<"none" | "interactive" | "image">("none");
+    const pathname = usePathname();
+    const cursorRef = useRef<HTMLDivElement>(null);
+    const mousePos = useRef({ x: 0, y: 0 });
+    const cursorPos = useRef({ x: 0, y: 0 });
+    const isHovering = useRef(false);
+    const rafId = useRef<number>();
 
     useEffect(() => {
-        const updateMousePosition = (e: MouseEvent) => {
-            setMousePosition({ x: e.clientX, y: e.clientY });
+        if (pathname !== "/" || !cursorRef.current) return;
+
+        const cursor = cursorRef.current;
+        let currentSize = 16;
+        let targetSize = 16;
+
+        // Mouse move handler - just update position, no state
+        const handleMouseMove = (e: MouseEvent) => {
+            mousePos.current = { x: e.clientX, y: e.clientY };
         };
 
+        // Mouse over handler - check for interactive elements
         const handleMouseOver = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
+            const interactive =
+                target.tagName === "BUTTON" ||
+                target.tagName === "A" ||
+                target.closest("button") !== null ||
+                target.closest("a") !== null;
 
-            // First check if it's an image or video
-            if (target.tagName.toLowerCase() === "img" || target.tagName.toLowerCase() === "video") {
-                setHoverType("image");
-                return;
-            }
-
-            // Check if hovering over interactive elements (buttons, links, inputs, or anything clickable like labels)
-            if (
-                window.getComputedStyle(target).cursor === "pointer" ||
-                target.tagName.toLowerCase() === "button" ||
-                target.tagName.toLowerCase() === "a" ||
-                target.tagName.toLowerCase() === "input" ||
-                target.tagName.toLowerCase() === "textarea" ||
-                target.closest("button") ||
-                target.closest("a")
-            ) {
-                setHoverType("interactive");
-            } else {
-                setHoverType("none");
-            }
+            isHovering.current = interactive;
+            targetSize = interactive ? 48 : 16;
         };
 
-        window.addEventListener("mousemove", updateMousePosition);
-        window.addEventListener("mouseover", handleMouseOver);
+        // Smooth animation loop using requestAnimationFrame
+        const animate = () => {
+            // Smooth lerp for position
+            const lerpFactor = 0.15;
+            cursorPos.current.x += (mousePos.current.x - cursorPos.current.x) * lerpFactor;
+            cursorPos.current.y += (mousePos.current.y - cursorPos.current.y) * lerpFactor;
+
+            // Smooth size transition
+            currentSize += (targetSize - currentSize) * 0.15;
+
+            // Update cursor position and size
+            const halfSize = currentSize / 2;
+            cursor.style.transform = `translate3d(${cursorPos.current.x - halfSize}px, ${cursorPos.current.y - halfSize}px, 0)`;
+            cursor.style.width = `${currentSize}px`;
+            cursor.style.height = `${currentSize}px`;
+
+            rafId.current = requestAnimationFrame(animate);
+        };
+
+        // Start animation loop
+        rafId.current = requestAnimationFrame(animate);
+
+        // Add event listeners
+        window.addEventListener("mousemove", handleMouseMove, { passive: true });
+        window.addEventListener("mouseover", handleMouseOver, { passive: true });
 
         return () => {
-            window.removeEventListener("mousemove", updateMousePosition);
+            if (rafId.current) {
+                cancelAnimationFrame(rafId.current);
+            }
+            window.removeEventListener("mousemove", handleMouseMove);
             window.removeEventListener("mouseover", handleMouseOver);
         };
-    }, []);
+    }, [pathname]);
 
-    // Determine sizes and colors based on hover type
-    const cursorSize = hoverType === "image" ? 96 : hoverType === "interactive" ? 48 : 16;
-    const cursorOffset = cursorSize / 2;
-    const isHovering = hoverType !== "none";
+    if (pathname !== "/") return null;
 
     return (
         <>
             <style dangerouslySetInnerHTML={{
                 __html: `
-        * {
-          /* Hide the default cursor only on larger screens to not break mobile */
-          cursor: none !important; 
-        }
-        @media (max-width: 768px) {
-          * {
-            cursor: auto !important;
-          }
-        }
-      `}} />
-            <motion.div
-                className="fixed top-0 left-0 pointer-events-none z-[9999] rounded-full mix-blend-difference hidden md:block"
-                animate={{
-                    x: mousePosition.x - cursorOffset,
-                    y: mousePosition.y - cursorOffset,
-                    width: cursorSize,
-                    height: cursorSize,
-                    backgroundColor: isHovering ? "#000000" : "#ffffff", // In mix-blend-difference, white becomes inverted color and black cancels out inversion.
-                }}
-                transition={{
-                    type: "spring",
-                    stiffness: 150,
-                    damping: 15,
-                    mass: 0.1,
-                }}
+                    @media (min-width: 768px) {
+                        * { cursor: none !important; }
+                    }
+                `
+            }} />
+            <div
+                ref={cursorRef}
+                className="fixed top-0 left-0 pointer-events-none z-[9999] rounded-full mix-blend-difference hidden md:block border-2 border-white bg-white"
                 style={{
-                    border: isHovering ? 'none' : '2px solid white',
-                    backgroundColor: 'white',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    overflow: 'hidden'
+                    width: '16px',
+                    height: '16px',
+                    willChange: 'transform',
                 }}
-            >
-                <AnimatePresence>
-                    {hoverType === "image" && (
-                        <motion.span
-                            initial={{ opacity: 0, scale: 0.5 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.5 }}
-                            className="text-white text-[10px] tracking-[0.2em] uppercase font-medium mix-blend-difference"
-                        >
-                            View
-                        </motion.span>
-                    )}
-                </AnimatePresence>
-            </motion.div>
+            />
         </>
     );
 };

@@ -1,7 +1,8 @@
 "use client";
 
-import { motion, useInView, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { useRef, useState, useEffect } from "react";
+import { memo, useRef, useState, useEffect } from "react";
+import { motion, useInView } from "framer-motion";
+import Image from "next/image";
 import aiDetectionImg from "@/assets/ai-detection.jpg";
 import { Volume2, VolumeX } from "lucide-react";
 
@@ -9,7 +10,7 @@ type FeatureType = {
   tag: string;
   title: string;
   description: string;
-  image?: string;
+  image?: any;
   video?: string;
 };
 
@@ -26,11 +27,11 @@ const features: FeatureType[] = [
     title: "Snap. Detect. Discover.",
     description:
       "Upload a photo of any furniture — our AI identifies the piece, finds matching styles, and tells you exactly which shops carry it near you.",
-    image: aiDetectionImg.src,
+    image: aiDetectionImg,
   },
 ];
 
-const FeatureBlock = ({
+const FeatureBlock = memo(({
   feature,
   index,
 }: {
@@ -48,12 +49,11 @@ const FeatureBlock = ({
     setIsMounted(true);
   }, []);
 
-  // Set playback speed when video loads
   useEffect(() => {
     if (isMounted && videoRef.current) {
       videoRef.current.playbackRate = 0.9;
     }
-  }, [isMounted, videoRef.current]);
+  }, [isMounted]);
 
   const toggleMute = () => {
     if (videoRef.current) {
@@ -70,9 +70,9 @@ const FeatureBlock = ({
     >
       {/* Text */}
       <motion.div
-        initial={{ opacity: 0, x: isReversed ? 60 : -60 }}
+        initial={{ opacity: 0, x: isReversed ? 40 : -40 }}
         animate={inView ? { opacity: 1, x: 0 } : {}}
-        transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.8 }}
         className={isReversed ? "md:order-2 md:text-right" : ""}
       >
         <span className="inline-block text-xs tracking-[0.3em] uppercase text-primary mb-4 border border-primary/30 px-3 py-1">
@@ -87,19 +87,18 @@ const FeatureBlock = ({
         <motion.div
           initial={{ scaleX: 0 }}
           animate={inView ? { scaleX: 1 } : {}}
-          transition={{ delay: 0.4, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ delay: 0.3, duration: 0.6 }}
           className={`h-px bg-primary/40 mt-8 max-w-[200px] ${isReversed ? "md:ml-auto origin-right" : "origin-left"
             }`}
         />
       </motion.div>
 
-      {/* Image/Video with 3D-style depth effect */}
+      {/* Image/Video */}
       <motion.div
-        initial={{ opacity: 0, y: 80, rotateX: 8 }}
-        animate={inView ? { opacity: 1, y: 0, rotateX: 0 } : {}}
-        transition={{ duration: 1.2, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+        initial={{ opacity: 0, y: 40 }}
+        animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.8, delay: 0.2 }}
         className={`relative group ${isReversed ? "md:order-1" : ""}`}
-        style={{ perspective: 1000 }}
       >
         <div className="relative overflow-hidden rounded-sm">
           {feature.video ? (
@@ -115,8 +114,6 @@ const FeatureBlock = ({
                     playsInline
                     className="w-full h-[500px] object-cover rounded-sm"
                   />
-
-                  {/* Audio toggle button */}
                   <button
                     onClick={toggleMute}
                     className="absolute bottom-4 right-4 z-50 p-2 md:p-3 bg-secondary/80 backdrop-blur-md rounded-full text-foreground hover:bg-primary transition-colors border border-border"
@@ -130,61 +127,45 @@ const FeatureBlock = ({
               )}
             </div>
           ) : (
-            <img
-              src={feature.image}
-              alt={feature.tag}
-              className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
-            />
+            <div className="relative h-[500px]">
+              <Image
+                src={feature.image}
+                alt={feature.tag}
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+                sizes="(max-width: 768px) 100vw, 50vw"
+                quality={85}
+                placeholder="blur"
+              />
+            </div>
           )}
-
-          {/* Scan line effect */}
-          <motion.div
-            initial={{ top: "-100%" }}
-            animate={inView ? { top: "120%" } : {}}
-            transition={{ delay: 0.8, duration: 2, ease: "linear" }}
-            className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent pointer-events-none"
-          />
-          {/* Glow overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent pointer-events-none" />
         </div>
-        {/* Floating depth shadows */}
         <div className="absolute -inset-4 -z-10 bg-primary/5 rounded-sm blur-2xl group-hover:bg-primary/10 transition-colors duration-700 pointer-events-none" />
       </motion.div>
     </motion.div>
   );
-};
+});
+
+FeatureBlock.displayName = "FeatureBlock";
 
 const AIShowcase = () => {
-  const sectionRef = useRef(null);
   const headingRef = useRef(null);
   const headingInView = useInView(headingRef, { once: true, margin: "-100px" });
 
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"],
-  });
-
-  const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-
   return (
     <section
-      ref={sectionRef}
       id="ai-studio"
       className="relative py-32 md:py-48 overflow-hidden"
     >
-      {/* Parallax background grain */}
-      <motion.div
-        style={{ y: backgroundY }}
-        className="absolute inset-0 bg-gradient-to-b from-secondary/20 via-background to-secondary/20 -z-10"
-      />
+      <div className="absolute inset-0 bg-gradient-to-b from-secondary/20 via-background to-secondary/20 -z-10" />
 
       <div className="max-w-7xl mx-auto px-6 md:px-12">
-        {/* Section heading */}
         <motion.div
           ref={headingRef}
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={headingInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.8 }}
           className="text-center mb-24 md:mb-32"
         >
           <p className="text-primary tracking-[0.3em] uppercase text-sm mb-4">
@@ -201,19 +182,17 @@ const AIShowcase = () => {
           </p>
         </motion.div>
 
-        {/* Feature blocks */}
         <div className="space-y-32 md:space-y-48">
           {features.map((feature, i) => (
             <FeatureBlock key={feature.tag} feature={feature} index={i} />
           ))}
         </div>
 
-        {/* Bottom stats / trust strip */}
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.6 }}
           className="mt-32 grid grid-cols-2 md:grid-cols-4 gap-8 border-t border-border pt-12"
         >
           {[
